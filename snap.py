@@ -118,7 +118,10 @@ def take_picture(width, height):
     filename = make_filename()
     camera.capture(filename)
 
-
-if __name__ == '__main__':
+def snap():
     if get_path_images():
         take_picture(WIDTH, HEIGHT)
+
+
+if __name__ == '__main__':
+    snap()
