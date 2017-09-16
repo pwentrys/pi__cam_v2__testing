@@ -113,12 +113,19 @@ def take_picture(width, height):
     :return:
     """
     configure_camera(width, height)
+
     # Camera warm-up time
     sleep(2)
+
+    # Get filename
     filename = make_filename()
     camera.capture(filename)
 
 def snap():
+    """
+    Snaps picture.
+    :return:
+    """
     if get_path_images():
         take_picture(WIDTH, HEIGHT)
 
