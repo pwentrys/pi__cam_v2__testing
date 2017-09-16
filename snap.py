@@ -1,4 +1,6 @@
 from time import sleep
+from os import mkdir
+from os.path import isdir, join, realpath, split
 from datetime import datetime
 from picamera import PiCamera
 
@@ -6,6 +8,12 @@ from picamera import PiCamera
 # Default Width + Height resolution.
 WIDTH = 1920
 HEIGHT = 1080
+
+# Default images folder name
+FOLDER_IMAGES = 'images'
+
+# Default images folder permissions
+FOLDER_IMAGES_PERMISSIONS = 0755
 
 # Datetime Format String
 DT_STRING = '%Y%m%d_%H%M%S'
@@ -21,6 +29,50 @@ INT_TYPE = type(0)
 
 # Camera object
 camera = PiCamera()
+
+def print_directory_create(message, path):
+    """
+    Lazy log print for directory creation.
+    :param message:
+    :param path:
+    :return:
+    """
+    print('DIRECTORY CREATE - {0} - {1}'.format(message, path))
+
+def ensure_path_exists(string):
+    """
+    Ensure directory exists (for images).
+    :param string:
+    :return:
+    """
+    if not isdir(string):
+        mkdir(string, FOLDER_IMAGES_PERMISSIONS)
+        if not isdir(string):
+            print_directory_create('ERROR', string)
+            return False
+        print_directory_create('SUCCESS', string)
+    return True
+
+def get_path_file():
+    """
+    Get path from current file.
+    :return:
+    """
+    return realpath(__file__)
+
+def get_path_images():
+    """
+    Compile images path.
+    :return:
+    """
+    _path = get_path_file()
+    split_path = split(_path)
+    root_path = split_path[0]
+    images_path = join(root_path, FOLDER_IMAGES)
+    if not ensure_path_exists(images_path):
+        print 'EXITING'
+        exit()
+    return images_path
 
 def set_resolution(width, height):
     """
@@ -45,7 +97,7 @@ def make_filename():
     :return:
     """
     dt_now = get_dt_string()
-    return 'images/{0}_{1}.{2}'.format(FILE_PREFIX, dt_now, FILE_EXT)
+    return '{0}/{1}_{2}.{3}'.format(FOLDER_IMAGES, FILE_PREFIX, dt_now, FILE_EXT)
 
 def configure_camera(width, height):
     assert type(width) is INT_TYPE, 'Width {0} is not an integer.'.format(width)
@@ -68,4 +120,5 @@ def take_picture(width, height):
 
 
 if __name__ == '__main__':
-    take_picture(WIDTH, HEIGHT)
+    if get_path_images():
+        take_picture(WIDTH, HEIGHT)
