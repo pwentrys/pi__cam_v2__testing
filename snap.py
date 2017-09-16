@@ -6,8 +6,8 @@ from picamera import PiCamera
 
 
 # Default Width + Height resolution.
-WIDTH = 1920
-HEIGHT = 1080
+WIDTH = 3280
+HEIGHT = 2464
 
 # Default images folder name
 FOLDER_IMAGES = 'images'
@@ -97,7 +97,9 @@ def make_filename():
     :return:
     """
     dt_now = get_dt_string()
-    return '{0}/{1}_{2}.{3}'.format(FOLDER_IMAGES, FILE_PREFIX, dt_now, FILE_EXT)
+    filename = '{0}/{1}_{2}.{3}'.format(FOLDER_IMAGES, FILE_PREFIX, dt_now, FILE_EXT)
+    print filename
+    return filename
 
 def configure_camera(width, height):
     assert type(width) is INT_TYPE, 'Width {0} is not an integer.'.format(width)
