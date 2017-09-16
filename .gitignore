@@ -87,4 +87,4 @@ ENV/
 .idea/
 images
 images/
-images/*
+images/*.jpg
