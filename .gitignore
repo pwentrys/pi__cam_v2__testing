@@ -85,6 +85,7 @@ ENV/
 # Rope project settings
 .ropeproject
 .idea/
+*.jpg
 images
 images/
 images/*.jpg
