@@ -27,6 +27,8 @@ FILE_EXT = 'jpg'
 # Define Integer type for reuse.
 INT_TYPE = type(0)
 
+# print 'realpath: {0}'.format(realpath(__file__))
+
 # Camera object
 camera = PiCamera()
 
@@ -45,7 +47,9 @@ def ensure_path_exists(string):
     :param string:
     :return:
     """
-    if not isdir(string):
+    if isdir(string):
+        print_directory_create('EXISTS', string)
+    else:
         mkdir(string, FOLDER_IMAGES_PERMISSIONS)
         if not isdir(string):
             print_directory_create('ERROR', string)
@@ -70,7 +74,7 @@ def get_path_images():
     root_path = split_path[0]
     images_path = join(root_path, FOLDER_IMAGES)
     if not ensure_path_exists(images_path):
-        print 'EXITING'
+        print 'EXITING - PATH NOT EXIST'
         exit()
     return images_path
 
@@ -97,15 +101,18 @@ def make_filename():
     :return:
     """
     dt_now = get_dt_string()
-    filename = '{0}/{1}_{2}.{3}'.format(FOLDER_IMAGES, FILE_PREFIX, dt_now, FILE_EXT)
-    print filename
-    return filename
+    images_path = get_path_images()
+    # print 'Gotten Path For Images in Make Filename: {0}'.format(images_path)
+    filename = '{0}_{1}.{2}'.format(FILE_PREFIX, dt_now, FILE_EXT)
+    out = join(images_path, filename)
+    print 'IMAGE: {0}'.format(filename)
+    return out
 
 def configure_camera(width, height):
-    assert type(width) is INT_TYPE, 'Width {0} is not an integer.'.format(width)
-    assert type(height) is INT_TYPE, 'Height {0} is not an integer.'.format(height)
+    # assert type(width) is INT_TYPE, 'Width {0} is not an integer.'.format(width)
+    # assert type(height) is INT_TYPE, 'Height {0} is not an integer.'.format(height)
     set_resolution(width, height)
-    camera.start_preview()
+    # camera.start_preview()
 
 def take_picture(width, height):
     """
@@ -117,20 +124,19 @@ def take_picture(width, height):
     configure_camera(width, height)
 
     # Camera warm-up time
-    sleep(2)
+    sleep(1)
 
     # Get filename
     filename = make_filename()
     camera.capture(filename)
+    sleep(1)
 
 def snap():
     """
     Snaps picture.
     :return:
     """
-    if get_path_images():
-        take_picture(WIDTH, HEIGHT)
+    # if get_path_images():
+    take_picture(WIDTH, HEIGHT)
 
-
-if __name__ == '__main__':
-    snap()
+snap()
