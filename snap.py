@@ -6,15 +6,16 @@ from picamera import PiCamera
 
 
 # Default Width + Height resolution.
-WIDTH = 3280
-HEIGHT = 2464
+WIDTH = 1920 # 3280
+HEIGHT = 1200 # 2464
+
 
 # Default Settings
 SHARPNESS = 0
-CONTRAST = 0
-BRIGHTNESS = 70 # DEFAULT 50
+CONTRAST = 0 # DEFAULT 0
+BRIGHTNESS = 50 # DEFAULT 50
 SATURATION = 0
-ISO = 0
+ISO = 800 # DEFAULT 0
 
 # Image Flips
 FLIP_VERTICAL = True
@@ -40,8 +41,14 @@ INT_TYPE = type(0)
 
 # print 'realpath: {0}'.format(realpath(__file__))
 
+# If long exposure shot.
+# TODO Clean up all references.
+LONG_EXPOSURE = True
+SHUTTER_SPEED = 10000000 # 6000000 = 6s
+
 # Camera object
-camera = PiCamera()
+camera = PiCamera(sensor_mode=3) if LONG_EXPOSURE else PiCamera()
+
 
 def print_directory_create(message, path):
     """
@@ -127,12 +134,11 @@ def configure_camera(width, height):
     camera.contrast = CONTRAST
     camera.brightness = BRIGHTNESS
     camera.saturation = SATURATION
+    if LONG_EXPOSURE:
+        camera.shutter_speed = SHUTTER_SPEED
     camera.ISO = ISO
     camera.hflip = FLIP_HORIZONTAL
     camera.vflip = FLIP_VERTICAL
-    print 'SETTINGS|W={0},H={1},SHARP={2},CONT={3},BRIGHT={4},SAT={5},ISO={6},HFLIP={7},VFLIP={8}'.format(
-        width, height, SHARPNESS, CONTRAST, BRIGHTNESS, SATURATION, ISO, FLIP_HORIZONTAL, FLIP_VERTICAL
-    )
     # camera.start_preview()
 
 def take_picture(width, height):
@@ -142,13 +148,23 @@ def take_picture(width, height):
     :param height:
     :return:
     """
-    configure_camera(width, height)
-
-    # Camera warm-up time
-    sleep(1)
 
     # Get filename
     filename = make_filename()
+
+    print 'SETTINGS|W={0},H={1},SHARP={2},CONT={3},BRIGHT={4},SAT={5},ISO={6},HFLIP={7},VFLIP={8}'.format(
+        width, height, SHARPNESS, CONTRAST, BRIGHTNESS, SATURATION, ISO, FLIP_HORIZONTAL, FLIP_VERTICAL
+    )
+
+    configure_camera(width, height)
+
+    # Camera warm-up time
+    if LONG_EXPOSURE:
+        sleep(30)
+        camera.exposure_mode = 'off'
+    else:
+        sleep(1)
+
     camera.capture(filename)
     sleep(1)
 
