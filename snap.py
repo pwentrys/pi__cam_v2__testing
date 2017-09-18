@@ -9,6 +9,17 @@ from picamera import PiCamera
 WIDTH = 3280
 HEIGHT = 2464
 
+# Default Settings
+SHARPNESS = 0
+CONTRAST = 0
+BRIGHTNESS = 70 # DEFAULT 50
+SATURATION = 0
+ISO = 0
+
+# Image Flips
+FLIP_VERTICAL = True
+FLIP_HORIZONTAL = True
+
 # Default images folder name
 FOLDER_IMAGES = 'images'
 
@@ -105,13 +116,23 @@ def make_filename():
     # print 'Gotten Path For Images in Make Filename: {0}'.format(images_path)
     filename = '{0}_{1}.{2}'.format(FILE_PREFIX, dt_now, FILE_EXT)
     out = join(images_path, filename)
-    print 'IMAGE: {0}'.format(filename)
+    print 'IMAGE|{0}'.format(filename)
     return out
 
 def configure_camera(width, height):
     # assert type(width) is INT_TYPE, 'Width {0} is not an integer.'.format(width)
     # assert type(height) is INT_TYPE, 'Height {0} is not an integer.'.format(height)
     set_resolution(width, height)
+    camera.sharpness = SHARPNESS
+    camera.contrast = CONTRAST
+    camera.brightness = BRIGHTNESS
+    camera.saturation = SATURATION
+    camera.ISO = ISO
+    camera.hflip = FLIP_HORIZONTAL
+    camera.vflip = FLIP_VERTICAL
+    print 'SETTINGS|W={0},H={1},SHARP={2},CONT={3},BRIGHT={4},SAT={5},ISO={6},HFLIP={7},VFLIP={8}'.format(
+        width, height, SHARPNESS, CONTRAST, BRIGHTNESS, SATURATION, ISO, FLIP_HORIZONTAL, FLIP_VERTICAL
+    )
     # camera.start_preview()
 
 def take_picture(width, height):
