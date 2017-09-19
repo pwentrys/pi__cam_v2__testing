@@ -5,21 +5,80 @@ from datetime import datetime
 from picamera import PiCamera
 
 
-# Default Width + Height resolution.
-WIDTH = 1920 # 3280
-HEIGHT = 1200 # 2464
+# EXAMPLE
+#
+# BRIGHTNESS    50
+# CONTRACT      0
+# EXPOSURE_MODE 'none'
+# ISO           0
+# SATURATION    0
+# SHARPNESS     0
+#
 
-# Default Settings
-SHARPNESS = 0
-CONTRAST = 0 # DEFAULT 0
-BRIGHTNESS = 50 # DEFAULT 50
-SATURATION = 0
-ISO = 1600 # DEFAULT 0
-EXPOSURE_MODE = 'none'
+CONFIG = {
+    # Default Flip Settings
+    'FLIP':{
+        'HORIZONTAL': True,
+        'VERTICAL': True,
+    },
 
-# Image Flips
-FLIP_VERTICAL = True
-FLIP_HORIZONTAL = True
+    # Exposure Dependant
+    'SHORT': {
+        # Default Width + Height resolution.
+        'RESOLUTION': {
+            'WIDTH': 3280,
+            'HEIGHT': 2464
+        },
+        'DAY': {
+            'BRIGHTNESS': 50,
+            'CONTRAST': 0,
+            'EXPOSURE_MODE': 'none',
+            'ISO': 100,
+            'SATURATION': 0,
+            'SHARPNESS': 0,
+        },
+        'NIGHT': {
+            'BRIGHTNESS': 50,
+            'CONTRAST': 0,
+            'EXPOSURE_MODE': 'none',
+            'ISO': 100,
+            'SATURATION': 0,
+            'SHARPNESS': 0,
+        }
+    },
+    'LONG': {
+        # Default Width + Height resolution.
+        'RESOLUTION': {
+            'WIDTH': 1920,
+            'HEIGHT': 1200
+        },
+        'DAY': {
+            'BRIGHTNESS': 50,
+            'CONTRAST': 0,
+            'EXPOSURE_MODE': 'off',
+            'ISO': 100,
+            'SATURATION': 0,
+            'SHARPNESS': 0,
+            'SHUTTER': 10000000,  # 6000000 = 6s
+        },
+        'NIGHT': {
+            'BRIGHTNESS': 75,
+            'CONTRAST': 0,
+            'EXPOSURE_MODE': 'night',
+            'ISO': 800,
+            'SATURATION': 0,
+            'SHARPNESS': 0,
+            'SHUTTER': 10000000,  # 6000000 = 6s
+        }
+    }
+}
+
+
+# -----------------------
+#
+# PREDEFINES
+#
+# -----------------------
 
 # Default images folder name
 FOLDER_IMAGES = 'images'
@@ -39,15 +98,26 @@ FILE_EXT = 'jpg'
 # Define Integer type for reuse.
 INT_TYPE = type(0)
 
-# print 'realpath: {0}'.format(realpath(__file__))
 
-# If long exposure shot.
-# TODO Clean up all references.
+
+# -----------------------
+#
+# SETTINGS
+#
+# -----------------------
+
+# Is this long exposure?
 LONG_EXPOSURE = True
-SHUTTER_SPEED = 10000000 # 6000000 = 6s
 
 # Is it day time?
+# TODO Match to sunrise sunset.
 TIME_DAY = False
+
+ACTIVE_CONFIG = CONFIG['LONG'] if LONG_EXPOSURE else CONFIG['SHORT']
+RESOLUTION_CONFIG = ACTIVE_CONFIG['RESOLUTION']
+ACTIVE_CONFIG = ACTIVE_CONFIG['DAY'] if TIME_DAY else ACTIVE_CONFIG['NIGHT']
+FLIP_CONFIG = CONFIG['FLIP']
+
 
 # Camera object
 camera = PiCamera(sensor_mode=3) if LONG_EXPOSURE else PiCamera()
@@ -133,15 +203,15 @@ def configure_camera(width, height):
     # assert type(width) is INT_TYPE, 'Width {0} is not an integer.'.format(width)
     # assert type(height) is INT_TYPE, 'Height {0} is not an integer.'.format(height)
     set_resolution(width, height)
-    camera.sharpness = SHARPNESS
-    camera.contrast = CONTRAST
-    camera.brightness = BRIGHTNESS
-    camera.saturation = SATURATION
+    camera.sharpness = ACTIVE_CONFIG['SHARPNESS']
+    camera.contrast = ACTIVE_CONFIG['CONTRAST']
+    camera.brightness = ACTIVE_CONFIG['BRIGHTNESS']
+    camera.saturation = ACTIVE_CONFIG['SATURATION']
     if LONG_EXPOSURE:
-        camera.shutter_speed = SHUTTER_SPEED
-    camera.ISO = ISO
-    camera.hflip = FLIP_HORIZONTAL
-    camera.vflip = FLIP_VERTICAL
+        camera.shutter_speed = ACTIVE_CONFIG['SHUTTER']
+    camera.ISO = ACTIVE_CONFIG['ISO']
+    camera.hflip = FLIP_CONFIG['HORIZONTAL']
+    camera.vflip = FLIP_CONFIG['VERTICAL']
     # camera.start_preview()
 
 def take_picture(width, height):
@@ -159,16 +229,25 @@ def take_picture(width, height):
 
     # Camera warm-up time
     if LONG_EXPOSURE:
-        EXPOSURE_MODE = 'off' if TIME_DAY else 'night'
         sleep(30)
-        camera.exposure_mode = EXPOSURE_MODE
+        camera.exposure_mode = ACTIVE_CONFIG['EXPOSURE_MODE']
     else:
         sleep(2)
 
     camera.capture(filename)
     sleep(1)
     print 'SETTINGS|W={0},H={1},SHARP={2},CONT={3},BRIGHT={4},SAT={5},ISO={6},HFLIP={7},VFLIP={8},TIME_DAY={9},EXP_MODE={10}'.format(
-        width, height, SHARPNESS, CONTRAST, BRIGHTNESS, SATURATION, ISO, FLIP_HORIZONTAL, FLIP_VERTICAL, TIME_DAY, EXPOSURE_MODE
+        width,
+        height,
+        ACTIVE_CONFIG['SHARPNESS'],
+        ACTIVE_CONFIG['CONTRAST'],
+        ACTIVE_CONFIG['BRIGHTNESS'],
+        ACTIVE_CONFIG['SATURATION'],
+        ACTIVE_CONFIG['ISO'],
+        FLIP_CONFIG['HORIZONTAL'],
+        FLIP_CONFIG['VERTICAL'],
+        TIME_DAY,
+        ACTIVE_CONFIG['EXPOSURE_MODE']
     )
 
 def snap():
@@ -177,6 +256,6 @@ def snap():
     :return:
     """
     # if get_path_images():
-    take_picture(WIDTH, HEIGHT)
+    take_picture(RESOLUTION_CONFIG['WIDTH'], RESOLUTION_CONFIG['HEIGHT'])
 
 snap()
