@@ -33,7 +33,7 @@ CONFIG = {
             'BRIGHTNESS': 50,
             'CONTRAST': 0,
             'EXPOSURE_MODE': 'none',
-            'ISO': 100,
+            'ISO': 0,
             'SATURATION': 0,
             'SHARPNESS': 0,
         },
@@ -62,10 +62,10 @@ CONFIG = {
             'SHUTTER': 10000000,  # 6000000 = 6s
         },
         'NIGHT': {
-            'BRIGHTNESS': 75,
+            'BRIGHTNESS': 50,
             'CONTRAST': 0,
             'EXPOSURE_MODE': 'night',
-            'ISO': 800,
+            'ISO': 0,
             'SATURATION': 0,
             'SHARPNESS': 0,
             'SHUTTER': 10000000,  # 6000000 = 6s
@@ -107,11 +107,11 @@ INT_TYPE = type(0)
 # -----------------------
 
 # Is this long exposure?
-LONG_EXPOSURE = True
+LONG_EXPOSURE = False
 
 # Is it day time?
 # TODO Match to sunrise sunset.
-TIME_DAY = False
+TIME_DAY = True
 
 ACTIVE_CONFIG = CONFIG['LONG'] if LONG_EXPOSURE else CONFIG['SHORT']
 RESOLUTION_CONFIG = ACTIVE_CONFIG['RESOLUTION']
@@ -202,6 +202,9 @@ def make_filename():
 def configure_camera(width, height):
     # assert type(width) is INT_TYPE, 'Width {0} is not an integer.'.format(width)
     # assert type(height) is INT_TYPE, 'Height {0} is not an integer.'.format(height)
+    camera.hflip = FLIP_CONFIG['HORIZONTAL']
+    camera.vflip = FLIP_CONFIG['VERTICAL']
+    # camera.start_preview()
     set_resolution(width, height)
     camera.sharpness = ACTIVE_CONFIG['SHARPNESS']
     camera.contrast = ACTIVE_CONFIG['CONTRAST']
@@ -209,10 +212,9 @@ def configure_camera(width, height):
     camera.saturation = ACTIVE_CONFIG['SATURATION']
     if LONG_EXPOSURE:
         camera.shutter_speed = ACTIVE_CONFIG['SHUTTER']
+        # TODO Mess around with this.
+        # camera.exposure_compensation = 12
     camera.ISO = ACTIVE_CONFIG['ISO']
-    camera.hflip = FLIP_CONFIG['HORIZONTAL']
-    camera.vflip = FLIP_CONFIG['VERTICAL']
-    # camera.start_preview()
 
 def take_picture(width, height):
     """
@@ -229,8 +231,8 @@ def take_picture(width, height):
 
     # Camera warm-up time
     if LONG_EXPOSURE:
-        sleep(30)
         camera.exposure_mode = ACTIVE_CONFIG['EXPOSURE_MODE']
+        sleep(30)
     else:
         sleep(2)
 
