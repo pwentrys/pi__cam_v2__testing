@@ -9,13 +9,13 @@ from picamera import PiCamera
 WIDTH = 1920 # 3280
 HEIGHT = 1200 # 2464
 
-
 # Default Settings
 SHARPNESS = 0
 CONTRAST = 0 # DEFAULT 0
 BRIGHTNESS = 50 # DEFAULT 50
 SATURATION = 0
-ISO = 800 # DEFAULT 0
+ISO = 1600 # DEFAULT 0
+EXPOSURE_MODE = 'none'
 
 # Image Flips
 FLIP_VERTICAL = True
@@ -45,6 +45,9 @@ INT_TYPE = type(0)
 # TODO Clean up all references.
 LONG_EXPOSURE = True
 SHUTTER_SPEED = 10000000 # 6000000 = 6s
+
+# Is it day time?
+TIME_DAY = False
 
 # Camera object
 camera = PiCamera(sensor_mode=3) if LONG_EXPOSURE else PiCamera()
@@ -152,21 +155,21 @@ def take_picture(width, height):
     # Get filename
     filename = make_filename()
 
-    print 'SETTINGS|W={0},H={1},SHARP={2},CONT={3},BRIGHT={4},SAT={5},ISO={6},HFLIP={7},VFLIP={8}'.format(
-        width, height, SHARPNESS, CONTRAST, BRIGHTNESS, SATURATION, ISO, FLIP_HORIZONTAL, FLIP_VERTICAL
-    )
-
     configure_camera(width, height)
 
     # Camera warm-up time
     if LONG_EXPOSURE:
+        EXPOSURE_MODE = 'off' if TIME_DAY else 'night'
         sleep(30)
-        camera.exposure_mode = 'off'
+        camera.exposure_mode = EXPOSURE_MODE
     else:
-        sleep(1)
+        sleep(2)
 
     camera.capture(filename)
     sleep(1)
+    print 'SETTINGS|W={0},H={1},SHARP={2},CONT={3},BRIGHT={4},SAT={5},ISO={6},HFLIP={7},VFLIP={8},TIME_DAY={9},EXP_MODE={10}'.format(
+        width, height, SHARPNESS, CONTRAST, BRIGHTNESS, SATURATION, ISO, FLIP_HORIZONTAL, FLIP_VERTICAL, TIME_DAY, EXPOSURE_MODE
+    )
 
 def snap():
     """
