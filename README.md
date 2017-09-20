@@ -6,7 +6,7 @@ Testing playground for Raspberry Pi Cam Module v2
 Built on Python 2.7.13
 
 # Functions
-- Run on cronjobs.
+- Run on a cronjob.
 - Snap photo.
 - Snap multiple photos.
 
