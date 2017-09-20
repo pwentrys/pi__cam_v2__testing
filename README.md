@@ -6,7 +6,9 @@ Testing playground for Raspberry Pi Cam Module v2
 Built on Python 2.7.13
 
 # Functions
-None.
+- Run on cronjobs.
+- Snap photo.
+- Snap multiple photos.
 
-# Src Doc URL
+# Cam Src Doc URL
 http://picamera.readthedocs.io/en/release-1.13/
